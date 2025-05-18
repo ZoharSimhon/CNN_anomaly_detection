@@ -2,5 +2,5 @@
 *.png
 *.log
 *.npy
-*old*
+*.pth
 __pycache__/

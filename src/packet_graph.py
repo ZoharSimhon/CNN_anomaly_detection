@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 import numpy as np
 
-from config import MAX_PACKETS_PER_FLOW, PIC_DIR
+from config import MAX_PACKETS_PER_FLOW, PIC_GRAPH_DIR
 
 def extract_packet_info(flow_packets, client_ip=None):
     """
@@ -88,11 +88,11 @@ def plot_and_save_graph(G, flow_key):
     - flow_key: used for filename uniqueness.
     """
     # Ensure output directory exists
-    os.makedirs(PIC_DIR, exist_ok=True) 
+    os.makedirs(PIC_GRAPH_DIR, exist_ok=True) 
 
     # Create filename using flow key
     flow_id_str = "_".join(map(str, flow_key))
-    filepath = os.path.join(PIC_DIR, f"{flow_id_str}.png")
+    filepath = os.path.join(PIC_GRAPH_DIR, f"{flow_id_str}.png")
     
     # Layout and plot
     plt.figure(figsize=(8, 6))
