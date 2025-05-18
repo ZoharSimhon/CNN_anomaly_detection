@@ -1,12 +1,11 @@
 import pyshark
 from collections import defaultdict
+import numpy as np
+from PIL import Image
+import os
 
-from packet_graph import create_traffic_graph, plot_and_save_graph
-
-# Constants
-PCAP_PATH = '../data/seperate_flow.pcap'
-PIC_DIR = '../output/graphs/'
-MAX_PACKETS_PER_FLOW = 17  # P
+from packet_graph import create_traffic_graph, plot_and_save_graph, graph_to_rgb_image
+from config import PCAP_PATH, MAX_PACKETS_PER_FLOW, TENSORS_DIR
 
 def get_flow_key(pkt):
     try:
@@ -44,8 +43,20 @@ for packet in cap:
         print(f"Creating graph for flow: {flow_key}")
         graph = create_traffic_graph(flows[flow_key], client_ip=flows[flow_key][0].ip.src)
         graphs[flow_key] = graph
-        plot_and_save_graph(graph, flow_key, PIC_DIR)
+        plot_and_save_graph(graph, flow_key)
         
+        # Convert to fixed-format RGB image
+        image_tensor = graph_to_rgb_image(graph)
+        print("Image shape:", image_tensor.shape)  
+
+        # Save as .npy for CNN use
+        os.makedirs(TENSORS_DIR, exist_ok=True)
+        np.save(f"../output/tensors/{'_'.join(map(str, flow_key))}.npy", image_tensor)
+        
+        # Optional: save as an actual image too
+        img = Image.fromarray(image_tensor)
+        img.save(os.path.join(TENSORS_DIR, f"{'_'.join(map(str, flow_key))}.png"))  
+              
         # OPTIONAL: Remove flow from memory if not needed anymore
         # del flows[flow_key]
         

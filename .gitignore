@@ -1,5 +1,6 @@
 *.pcap
 *.png
 *.log
+*.npy
 *old*
 __pycache__/

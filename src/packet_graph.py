@@ -2,7 +2,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import os
 from datetime import datetime
+import numpy as np
 
+from config import MAX_PACKETS_PER_FLOW, PIC_DIR
 
 def extract_packet_info(flow_packets, client_ip=None):
     """
@@ -80,17 +82,17 @@ def create_traffic_graph(flow_packets, client_ip=None):
 
     return G
 
-def plot_and_save_graph(G, flow_key, output_dir):
+def plot_and_save_graph(G, flow_key):
     """
     Plots the graph G and saves it as an image.
     - flow_key: used for filename uniqueness.
     """
     # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True) 
+    os.makedirs(PIC_DIR, exist_ok=True) 
 
     # Create filename using flow key
     flow_id_str = "_".join(map(str, flow_key))
-    filepath = os.path.join(output_dir, f"{flow_id_str}.png")
+    filepath = os.path.join(PIC_DIR, f"{flow_id_str}.png")
     
     # Layout and plot
     plt.figure(figsize=(8, 6))
@@ -121,3 +123,52 @@ def plot_and_save_graph(G, flow_key, output_dir):
 
     print(f"Graph saved to: {filepath}")
 
+def graph_to_rgb_image(G):
+    """
+    Converts a packet graph into a fixed-size RGB image.
+    
+    Each pixel (u, v) is:
+        - R: signed_length(u)
+        - G: edge weight (time delta) between u and v
+        - B: signed_length(v)
+    If no edge exists, the pixel is (0, 0, 0).
+
+    Args:
+        G: NetworkX DiGraph with packet nodes and intra/inter edges.
+        max_packets: Fixed number of packets per flow (image size).
+
+    Returns:
+        image: NumPy array of shape (max_packets, max_packets, 3), dtype=uint8
+    """
+    image = np.zeros((MAX_PACKETS_PER_FLOW, MAX_PACKETS_PER_FLOW, 3), dtype=np.float32)
+    
+        # Collect all signed lengths and weights to normalize
+    signed_lengths = [G.nodes[n]['length'] for n in G.nodes]
+    edge_weights = [data['weight'] for _, _, data in G.edges(data=True)]
+
+    # Handle edge cases
+    if not signed_lengths or not edge_weights:
+        return image.astype(np.uint8)
+
+    len_min, len_max = min(signed_lengths), max(signed_lengths)
+    w_min, w_max = min(edge_weights), max(edge_weights)
+
+    def normalize(val, vmin, vmax):
+        if vmax == vmin:
+            return 127.5  # Mid-range value if constant
+        return (val - vmin) / (vmax - vmin) * 255
+
+    # Fill image
+    for u, v, data in G.edges(data=True):
+        if u < MAX_PACKETS_PER_FLOW and v < MAX_PACKETS_PER_FLOW:
+            u_len = G.nodes[u]['length']
+            v_len = G.nodes[v]['length']
+            weight = data['weight']
+
+            r = normalize(u_len, len_min, len_max)
+            g = normalize(weight, w_min, w_max)
+            b = normalize(v_len, len_min, len_max)
+
+            image[u, v] = (r, g, b)
+
+    return image.astype(np.uint8)
