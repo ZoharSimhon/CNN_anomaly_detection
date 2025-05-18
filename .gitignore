@@ -1,0 +1,5 @@
+*.pcap
+*.png
+*.log
+*old*
+__pycache__/
