@@ -17,18 +17,25 @@ def main(args):
     print("🔧 Step 1: Ensuring required folders exist...")
     ensure_dirs()
 
-    if args.preprocess:
+    if args.preprocess and args.train:
         print("📦 Step 2: Processing flows and converting to image tensors...")
-        process_flows()
-
-    if args.train:
+        process_flows('train')
+        
         print("🧠 Step 3: Training model on benign traffic...")
         train_model()
 
-    if args.test:
+
+    elif args.preprocess and args.test:
+        print("📦 Step 2: Processing flows and converting to image tensors...")
+        process_flows('test')
+        
         print("🔍 Step 4: Testing model on mixed traffic...")
         test_model()
-
+    
+    elif args.test:
+        print("🔍 Step 4: Testing model on mixed traffic...")
+        test_model()
+        
     if not any([args.preprocess, args.train, args.test]):
         print("⚠️ No action specified. Use --preprocess, --train, or --test.")
 

@@ -1,6 +1,5 @@
 import torch
 from torch.utils.data import DataLoader
-import os
 
 from cnn_model import TrafficCNN
 from dataset import TrafficImageDataset
@@ -23,9 +22,9 @@ def train_model():
             x, y = x.to(device), y.to(device).unsqueeze(1)
             out = model(x)
             loss = criterion(out, y)
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            optimizer.zero_grad()
             total_loss += loss.item()
 
         print(f"Epoch {epoch+1}/{EPOCHS}, Loss: {total_loss:.4f}")

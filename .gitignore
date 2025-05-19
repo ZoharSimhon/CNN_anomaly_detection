@@ -1,4 +1,5 @@
 *.pcap
+*.csv
 *.png
 *.log
 *.npy

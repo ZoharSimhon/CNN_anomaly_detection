@@ -1,7 +1,8 @@
-# test.py
-
 import torch
 from torch.utils.data import DataLoader
+from sklearn.metrics import confusion_matrix, classification_report
+import numpy as np
+
 from cnn_model import TrafficCNN
 from dataset import TrafficImageDataset
 from config import *
@@ -13,22 +14,41 @@ def test_model():
     model.load_state_dict(torch.load(MODEL_DIR))
     model.eval()
 
-    # Load benign and malicious sets
-    benign_dataset = TrafficImageDataset(f"{TENSORS_DIR}/test/benign", BENIGN_LABEL)
-    malicious_dataset = TrafficImageDataset(f"{TENSORS_DIR}/test/malicious", MALICIOUS_LABEL)
-    loader = DataLoader(benign_dataset + malicious_dataset, batch_size=1, shuffle=False)
+    # Load benign and malicious datasets
+    benign_dataset = TrafficImageDataset(TEST_BENIGN_DIR, BENIGN_LABEL)
+    malicious_dataset = TrafficImageDataset(TEST_MALICIOUS_DIR, MALICIOUS_LABEL)
 
-    TP = TN = FP = FN = 0
+    # Combine datasets
+    full_dataset = benign_dataset + malicious_dataset
+    loader = DataLoader(full_dataset, batch_size=1, shuffle=False)
+
+    y_true = []
+    y_pred = []
 
     with torch.no_grad():
         for x, y in loader:
-            x, y = x.to(device), y.to(device).unsqueeze(1)
-            out = model(x)
-            pred = (out > 0.5).float()
+            x = x.to(device)
+            output = model(x)
+            prob = output.item()
+            print(f"Model prediction probability: {prob:.4f}")
+            prediction = int(prob > 0.3)  # Threshold for classification
 
-            if pred == 1 and y == 1: TP += 1
-            elif pred == 0 and y == 0: TN += 1
-            elif pred == 1 and y == 0: FP += 1
-            elif pred == 0 and y == 1: FN += 1
+            y_true.append(y.item())
+            y_pred.append(prediction)
 
-    print(f"TP: {TP}, TN: {TN}, FP: {FP}, FN: {FN}")
+    # Convert to numpy arrays
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    # Compute confusion matrix
+    cm = confusion_matrix(y_true, y_pred)
+    print("Confusion Matrix:")
+    print(cm)
+
+    # Compute detailed classification report
+    print("\nClassification Report:")
+    print(classification_report(y_true, y_pred, target_names=['Benign', 'Malicious']))
+
+    # Optional: Print TP, TN, FP, FN
+    tn, fp, fn, tp = cm.ravel()
+    print(f"\nTP: {tp}, TN: {tn}, FP: {fp}, FN: {fn}")

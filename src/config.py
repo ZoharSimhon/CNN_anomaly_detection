@@ -1,5 +1,5 @@
 # Directory structure
-PCAP_PATH = '../data/seperate_flow.pcap'
+PCAP_PATH = '../data/benign_train.pcap'
 PIC_GRAPH_DIR = '../output/graphs/'
 MODEL_DIR = '../output/model.pth'
 TENSORS_DIR = '../output/tensors/' # Base path for npy files
@@ -21,3 +21,7 @@ LEARNING_RATE = 1e-3
 # Labels
 BENIGN_LABEL = 0
 MALICIOUS_LABEL = 1
+
+# Malicious IPs
+ATTACKER_IP = '18.218.115.60'
+VICTIM_IP = '172.31.69.28'
