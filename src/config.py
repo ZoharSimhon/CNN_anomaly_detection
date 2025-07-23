@@ -1,13 +1,14 @@
 # Directory structure
-PCAP_PATH = '../data/benign_train.pcap'
+PCAP_PATH = '../data/xss.pcap'
 PIC_GRAPH_DIR = '../output/graphs/'
 MODEL_DIR = '../output/model.pth'
-TENSORS_DIR = '../output/tensors/' # Base path for npy files
+TENSORS_DIR = '../output/tensors' # Base path for npy files
 
 # Subfolders
-TRAIN_BENIGN_DIR = f"{TENSORS_DIR}/train"
-TEST_BENIGN_DIR = f"{TENSORS_DIR}/test/benign"
-TEST_MALICIOUS_DIR = f"{TENSORS_DIR}/test/malicious"
+TRAIN_BENIGN_DIR = f'{TENSORS_DIR}/train/benign'
+TRAIN_MALICIOUS_DIR = f'{TENSORS_DIR}/train/malicious'
+TEST_BENIGN_DIR = f'{TENSORS_DIR}/test/benign'
+TEST_MALICIOUS_DIR = f'{TENSORS_DIR}/test/malicious'
 
 # Settings
 MAX_PACKETS_PER_FLOW = 32  # P

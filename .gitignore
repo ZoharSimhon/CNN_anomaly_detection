@@ -1,7 +1,9 @@
 *.pcap
 *.csv
 *.png
+*.jpg
 *.log
 *.npy
 *.pth
 __pycache__/
+try*
