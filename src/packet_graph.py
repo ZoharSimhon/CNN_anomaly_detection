@@ -6,28 +6,7 @@ import numpy as np
 
 from config import MAX_PACKETS_PER_FLOW, PIC_GRAPH_DIR
 
-def extract_packet_info(flow_packets, client_ip=None):
-    """
-    Extracts signed length and timestamp from Pyshark packets.
-    Args:
-        - flow_packets: list of packets in a flow
-        - client_ip: optional, used to determine direction
-    Returns:
-        List[Tuple[int, int, datetime.datetime]]: List of tuples (index, signed_length, timestamp)
-    """
-    packet_info = []
-    for idx, pkt in enumerate(flow_packets):
-        try:
-            pkt_time = pkt.sniff_time
-            pkt_len = int(pkt.length)
-            direction = -1 if pkt.ip.src == client_ip else 1
-            signed_length = pkt_len * direction
-            packet_info.append((idx, signed_length, pkt_time))
-        except AttributeError as e:
-            print(e)  # skip malformed packets
-    return packet_info
-
-def create_traffic_graph(flow_packets, client_ip=None):
+def create_traffic_graph(flow_packets):
     """
     Creates a graph from a list of packets based on the TIG definition.
     - Nodes: packets with feature = packet_length * direction
@@ -35,20 +14,19 @@ def create_traffic_graph(flow_packets, client_ip=None):
     - Inter-burst edges: between first and last nodes of consecutive bursts
     """
     G = nx.DiGraph()
-    packets = extract_packet_info(flow_packets, client_ip)
-    n = len(packets)
+    n = len(flow_packets)
 
     # Step 1: Add nodes
-    for idx, signed_len, timestamp in packets:
+    for idx, signed_len, timestamp in flow_packets:
         G.add_node(idx, length=signed_len, timestamp=timestamp)
 
     # Step 2: Identify bursts
     bursts = []
     start = 0
-    current_dir = packets[0][1] > 0 # True for downstream, False for upstream
+    current_dir = flow_packets[0][1] > 0 # True for downstream, False for upstream
 
     for i in range(1, n):
-        _, pkt_len, _ = packets[i]
+        _, pkt_len, _ = flow_packets[i]
         direction = pkt_len > 0
         if direction != current_dir:
             bursts.append((start, i - 1)) # end current burst

@@ -46,7 +46,27 @@ def get_output_dir(mode, flow_key):
     else:
         raise ValueError(f"Unknown mode: {mode}")
 
-def process_flows(mode='train', num_packets=70000):
+def extract_packet_info(packet, client_ip=None, idx_packet=0):
+    """
+    Extracts signed length and timestamp from Pyshark packet.
+    Args:
+        - packet: a single packet from a flow
+        - client_ip: optional, used to determine direction
+        - idx_packet: index of the packet in the flow
+    Returns:
+        Tuple[int, int, datetime.datetime]: A tuple (index, signed_length, timestamp)
+    """
+    try:
+        pkt_time = packet.sniff_time
+        pkt_len = int(packet.length)
+        direction = -1 if packet.ip.src == client_ip else 1
+        signed_length = pkt_len * direction
+        return (idx_packet, signed_length, pkt_time)
+    except AttributeError as e:
+        print(e)  # skip malformed packets
+    return None
+
+def process_flows(mode='train', num_packets=-1):
     """
     Process the PCAP file, extract flows, and create traffic graphs.
     - Each flow is limited to MAX_PACKETS_PER_FLOW packets.
@@ -75,12 +95,13 @@ def process_flows(mode='train', num_packets=70000):
         
         # If flow is already in memory, append packet
         if len(flows[flow_key]) < MAX_PACKETS_PER_FLOW:
-            flows[flow_key].append(packet)
-            
+            packet_info = extract_packet_info(packet, client_ip=flow_key[0], idx_packet=len(flows[flow_key]))
+            flows[flow_key].append(packet_info)
+
         # Once flow reaches MAX_PACKETS_PER_FLOW → build graph
         if len(flows[flow_key]) == MAX_PACKETS_PER_FLOW:
             # print(f"Creating graph for flow: {flow_key}")
-            graph = create_traffic_graph(flows[flow_key], client_ip=flows[flow_key][0].ip.src)
+            graph = create_traffic_graph(flows[flow_key])
             # plot_and_save_graph(graph, flow_key)
             
             # Convert to fixed-format RGB image
@@ -104,7 +125,7 @@ def process_flows(mode='train', num_packets=70000):
     for flow_key in flows:
         if flows[flow_key] != 'EOF':
             print(f"Creating graph for flow: {flow_key}")
-            graph = create_traffic_graph(flows[flow_key], client_ip=flows[flow_key][0].ip.src)
+            graph = create_traffic_graph(flows[flow_key])
 
             # plot_and_save_graph(graph, flow_key)
             
