@@ -2,9 +2,17 @@ import os
 import argparse
 
 from flow_separation import process_flows
+from flow_separation_csv import process_csv_flows
 from train import train_model
 from test import test_model
-from config import TENSORS_DIR, TRAIN_BENIGN_DIR, TRAIN_MALICIOUS_DIR,TEST_BENIGN_DIR, TEST_MALICIOUS_DIR   
+from config import  (
+    TENSORS_DIR, 
+    TRAIN_BENIGN_DIR, 
+    TRAIN_MALICIOUS_DIR, 
+    TEST_BENIGN_DIR, 
+    TEST_MALICIOUS_DIR,
+    FILE_PATH,
+)
 
 
 def ensure_dirs():
@@ -23,16 +31,22 @@ def main(args):
 
     if args.preprocess and args.train:
         print("📦 Step 2: Processing flows and converting to image tensors...")
-        process_flows('train')
-        
+        if FILE_PATH.endswith('.csv'):
+            process_csv_flows('train')
+        else:
+            process_flows('train')
+
         print("🧠 Step 3: Training model on benign traffic...")
         train_model()
 
 
     elif args.preprocess and args.test:
         print("📦 Step 2: Processing flows and converting to image tensors...")
-        process_flows('test')
-        
+        if FILE_PATH.endswith('.csv'):
+            process_csv_flows('test')
+        else:
+            process_flows('test')
+
         print("🔍 Step 4: Testing model on mixed traffic...")
         test_model()
     

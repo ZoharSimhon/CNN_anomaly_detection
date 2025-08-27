@@ -39,7 +39,7 @@ def create_traffic_graph(flow_packets):
         for u in range(start_idx, end_idx):
             t1 = G.nodes[u]['timestamp']
             t2 = G.nodes[u + 1]['timestamp']
-            delta = (t2 - t1).total_seconds()
+            delta = (float(t2) - float(t1))
             # aadd edges between consecutive nodes in burst
             G.add_edge(u, u + 1, type='intra', weight=delta)
 
@@ -51,12 +51,12 @@ def create_traffic_graph(flow_packets):
         # Add edge from first node of previous burst to first node of current burst
         t1 = G.nodes[prev_start]['timestamp']
         t2 = G.nodes[curr_start]['timestamp']
-        G.add_edge(prev_start, curr_start, type='inter', weight=(t2 - t1).total_seconds())
+        G.add_edge(prev_start, curr_start, type='inter', weight=(t2 - t1))
 
         # Add edge from last node of previous burst to last node of current burst
         t1 = G.nodes[prev_end]['timestamp']
         t2 = G.nodes[curr_end]['timestamp']
-        G.add_edge(prev_end, curr_end, type='inter', weight=(t2 - t1).total_seconds())
+        G.add_edge(prev_end, curr_end, type='inter', weight=(t2 - t1))
 
     return G
 

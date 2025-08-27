@@ -1,8 +1,8 @@
 # Directory structure
-PCAP_PATH = '../data/xss.pcap'
+FILE_PATH = '../data/Infiltration2_28_02_2018.csv'
 PIC_GRAPH_DIR = '../output/graphs/'
-MODEL_DIR = '../output/model.pth'
-TENSORS_DIR = '../output/tensors' # Base path for npy files
+MODEL_DIR = '../output/Infiltration/model.pth'
+TENSORS_DIR = '../output/Infiltration/tensors' # Base path for npy files
 
 # Subfolders
 TRAIN_BENIGN_DIR = f'{TENSORS_DIR}/train/benign'
@@ -10,7 +10,7 @@ TRAIN_MALICIOUS_DIR = f'{TENSORS_DIR}/train/malicious'
 TEST_BENIGN_DIR = f'{TENSORS_DIR}/test/benign'
 TEST_MALICIOUS_DIR = f'{TENSORS_DIR}/test/malicious'
 
-# Settings
+# Settings  
 MAX_PACKETS_PER_FLOW = 32  # P
 IMAGE_SIZE = MAX_PACKETS_PER_FLOW  # Square image
 
@@ -24,5 +24,5 @@ BENIGN_LABEL = 0
 MALICIOUS_LABEL = 1
 
 # Malicious IPs
-ATTACKER_IP = '18.218.115.60'
-VICTIM_IP = '172.31.69.28'
+ATTACKER_IP = '13.58.225.34'
+VICTIM_IP = '172.31.69.24'

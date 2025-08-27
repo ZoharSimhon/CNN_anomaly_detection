@@ -7,7 +7,7 @@ import os
 from packet_graph import create_traffic_graph, plot_and_save_graph, graph_to_rgb_image
 from config import (
     MAX_PACKETS_PER_FLOW, 
-    PCAP_PATH,
+    FILE_PATH,
     TRAIN_BENIGN_DIR,
     TRAIN_MALICIOUS_DIR,
     TEST_BENIGN_DIR,
@@ -66,7 +66,7 @@ def extract_packet_info(packet, client_ip=None, idx_packet=0):
         print(e)  # skip malformed packets
     return None
 
-def process_flows(mode='train', num_packets=-1):
+def process_flows(mode='train', num_packets=100):
     """
     Process the PCAP file, extract flows, and create traffic graphs.
     - Each flow is limited to MAX_PACKETS_PER_FLOW packets.
@@ -77,7 +77,7 @@ def process_flows(mode='train', num_packets=-1):
     flows = defaultdict(list)
     
     # Read PCAP packet-by-packet
-    cap = pyshark.FileCapture(PCAP_PATH)
+    cap = pyshark.FileCapture(FILE_PATH)
 
     for i, packet in enumerate(cap):
         if i == num_packets:
