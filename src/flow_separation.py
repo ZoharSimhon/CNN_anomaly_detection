@@ -8,8 +8,7 @@ from packet_graph import create_traffic_graph, plot_and_save_graph, graph_to_rgb
 from config import (
     MAX_PACKETS_PER_FLOW, 
     PCAP_PATH,
-    TRAIN_BENIGN_DIR,
-    TRAIN_MALICIOUS_DIR,
+    TRAIN_DIR,
     TEST_BENIGN_DIR,
     TEST_MALICIOUS_DIR,
     ATTACKER_IP,
@@ -32,17 +31,15 @@ def get_flow_key(pkt):
 
 def get_output_dir(mode, flow_key):
     if mode == 'train':
-        label = flow_key[0] in [ATTACKER_IP, VICTIM_IP] and flow_key[2] in [ATTACKER_IP, VICTIM_IP]
-        if label:
-            return TRAIN_MALICIOUS_DIR
-        else:
-            return TRAIN_BENIGN_DIR
-    if mode == 'test':
+        return TRAIN_DIR
+    
+    elif mode == 'test':
         label = flow_key[0] in [ATTACKER_IP, VICTIM_IP] and flow_key[2] in [ATTACKER_IP, VICTIM_IP]
         if label:
             return TEST_MALICIOUS_DIR
         else:
             return TEST_BENIGN_DIR
+        
     else:
         raise ValueError(f"Unknown mode: {mode}")
 

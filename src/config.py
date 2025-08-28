@@ -1,12 +1,11 @@
 # Directory structure
-PCAP_PATH = '../data/xss.pcap'
+PCAP_PATH = '../data/bruteforce-xss-2-23_02_2018.pcap'
 PIC_GRAPH_DIR = '../output/graphs/'
-MODEL_DIR = '../output/model.pth'
-TENSORS_DIR = '../output/tensors' # Base path for npy files
+MODEL_DIR = '../output/model1.pth'
+TENSORS_DIR = '../output/tensors1' # Base path for npy files
 
 # Subfolders
-TRAIN_BENIGN_DIR = f'{TENSORS_DIR}/train/benign'
-TRAIN_MALICIOUS_DIR = f'{TENSORS_DIR}/train/malicious'
+TRAIN_DIR = f'{TENSORS_DIR}/train'
 TEST_BENIGN_DIR = f'{TENSORS_DIR}/test/benign'
 TEST_MALICIOUS_DIR = f'{TENSORS_DIR}/test/malicious'
 
@@ -18,6 +17,10 @@ IMAGE_SIZE = MAX_PACKETS_PER_FLOW  # Square image
 EPOCHS = 20
 BATCH_SIZE = 32
 LEARNING_RATE = 1e-3
+
+# OOD settings
+T = 1.0
+OOD_THRESHOLD = 0.5
 
 # Labels
 BENIGN_LABEL = 0

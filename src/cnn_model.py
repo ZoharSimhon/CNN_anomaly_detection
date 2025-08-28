@@ -1,10 +1,13 @@
-# model.py
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from config import IMAGE_SIZE
 
 class SimpleCNN(nn.Module):
+    """
+    Simple CNN for flow images.
+    Output: logits (no softmax) so that energy-based OOD scoring can be applied.
+    """
     def __init__(self, num_classes=2):
         super(SimpleCNN, self).__init__()
         self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
@@ -21,5 +24,5 @@ class SimpleCNN(nn.Module):
         x = self.pool2(F.relu(self.conv2(x)))  # (B, 64, H/4, W/4)
         x = x.view(x.size(0), -1)              # Flatten
         x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        return x  # logits
+        logits = self.fc2(x)                   # raw scores (logits)
+        return logits

@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score, accuracy_score
+
 import numpy as np
 
 from cnn_model import SimpleCNN
@@ -9,8 +10,17 @@ from config import *
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+def compute_energy_score(logits):
+    """
+    Compute energy score for OOD detection.
+    Reference: https://proceedings.neurips.cc/paper/2020/hash/f5496252609c43eb8a3d147ab9b9c006-Abstract.html
+    """
+    return -T * torch.logsumexp(logits / T, dim=1)
+
+
 def test_model():
-    model = SimpleCNN(num_classes=2).to(device)
+    # load model
+    model = SimpleCNN(num_classes=1).to(device)
     model.load_state_dict(torch.load(MODEL_DIR, map_location=device))
     model.eval()
 
@@ -19,26 +29,40 @@ def test_model():
     full_dataset = benign_dataset + malicious_dataset
     loader = DataLoader(full_dataset, batch_size=32, shuffle=False)
 
-    y_true = []
-    y_pred = []
+    scores, labels = [], []
 
     with torch.no_grad():
         for x, y in loader:
             x = x.to(device)
-            outputs = model(x)
-            preds = torch.argmax(outputs, dim=1).cpu().numpy()
-            y_true.extend(y.numpy())
-            y_pred.extend(preds)
+            logits = model(x)
+            energy = compute_energy_score(logits)
+            scores.extend(energy.cpu().numpy())
+            labels.extend(y.numpy())  # use the true labels here
 
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
+    scores = np.array(scores)
+    labels = np.array(labels)
 
-    cm = confusion_matrix(y_true, y_pred)
-    print("Confusion Matrix:")
+    # Normalize scores (optional but helps stability)
+    scores = (scores - scores.min()) / (scores.max() - scores.min() + 1e-8)
+
+   # Threshold for classification
+    preds = (scores > OOD_THRESHOLD).astype(int)
+
+    # Metrics
+    # auroc = roc_auc_score(labels, scores)
+    acc = accuracy_score(labels, preds)
+
+    print("=== Evaluation Results ===")
+    # print(f"AUROC: {auroc:.4f}")
+    print(f"Accuracy: {acc:.4f}")
+
+    # Confusion Matrix and Classification Report
+    cm = confusion_matrix(labels, preds)
+    print("\nConfusion Matrix:")
     print(cm)
 
     print("\nClassification Report:")
-    print(classification_report(y_true, y_pred, target_names=["Benign", "Malicious"]))
+    print(classification_report(labels, preds, target_names=["Benign", "Malicious"]))
 
     if cm.shape == (2, 2):
         tn, fp, fn, tp = cm.ravel()
