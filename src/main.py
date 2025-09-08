@@ -17,34 +17,34 @@ def ensure_dirs():
     os.makedirs(TEST_MALICIOUS_DIR, exist_ok=True)
 
 def main(args):
-    print("🔧 Step 1: Ensuring required folders exist...")
+    print("Step 1: Ensuring required folders exist...")
     ensure_dirs()
 
     if args.preprocess and args.train:
-        print("📦 Step 2: Processing flows and converting to image tensors...")
+        print("Step 2: Processing flows and converting to image tensors...")
         process_flows('train')
         
-        print("🧠 Step 3: Training model on benign traffic...")
+        print("Step 3: Training model on benign traffic...")
         train_model()
 
 
     elif args.preprocess and args.test:
-        print("📦 Step 2: Processing flows and converting to image tensors...")
+        print("Step 2: Processing flows and converting to image tensors...")
         process_flows('test')
-        
-        print("🔍 Step 4: Testing model on mixed traffic...")
+
+        print("Step 3: Testing model on mixed traffic...")
         test_model()
     
     elif args.test:
-        print("🔍 Step 4: Testing model on mixed traffic...")
-        test_model()
+        print("Step 2: Testing model on mixed traffic...")
+        test_model() 
     
     elif args.train:
-        print("🧠 Step 3: Training model on benign traffic...")
+        print("Step 2: Training model on benign traffic...")
         train_model()
         
     if not any([args.preprocess, args.train, args.test]):
-        print("⚠️ No action specified. Use --preprocess, --train, or --test.")
+        print("No action specified. Use --preprocess, --train, or --test.")
 
 
 if __name__ == "__main__":
