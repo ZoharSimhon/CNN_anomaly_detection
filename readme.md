@@ -53,21 +53,6 @@ CNN_anomaly_detection/
 1. **Configure parameters:**  
    Edit `src/config.py` to set paths, constants, and IP addresses for attacker/victim.
 
-## Setup
-
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-   Required packages: `pyshark`, `numpy`, `torch`, `networkx`, `matplotlib`, `Pillow`.
-
-2. **Install TShark:**  
-   Download and install [Wireshark/TShark](https://www.wireshark.org/download.html).  
-   Make sure `tshark` is in your system PATH.
-
-3. **Configure parameters:**  
-   Edit `src/config.py` to set paths, constants, and IP addresses for attacker/victim.
-
 ## Usage
 
 ### 1. Train Mode
