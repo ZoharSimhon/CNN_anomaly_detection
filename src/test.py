@@ -5,7 +5,7 @@ import os
 
 from cnn_model import SimpleCNN
 from dataset import TrafficImageDataset
-from config import *
+import config
 from results import evaluate_model  # Import the new module
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -24,12 +24,12 @@ def test_model():
     # Use num_classes=1 for scalar output
     model = SimpleCNN(num_classes=1).to(device)
     
-    if not os.path.exists(MODEL_DIR):
-        print(f"Error: Model file not found at {MODEL_DIR}")
+    if not os.path.exists(config.MODEL_DIR):
+        print(f"Error: Model file not found at {config.MODEL_DIR}")
         return
 
     try:
-        model.load_state_dict(torch.load(MODEL_DIR, map_location=device))
+        model.load_state_dict(torch.load(config.MODEL_DIR, map_location=device))
     except RuntimeError:
         print("Error: Model architecture mismatch. Ensure num_classes=1 used in training.")
         return
@@ -38,8 +38,8 @@ def test_model():
 
     # 2. Load Data
     try:
-        benign_dataset = TrafficImageDataset(TEST_BENIGN_DIR, BENIGN_LABEL)
-        malicious_dataset = TrafficImageDataset(TEST_MALICIOUS_DIR, MALICIOUS_LABEL)
+        benign_dataset = TrafficImageDataset(config.TEST_BENIGN_DIR, config.BENIGN_LABEL)
+        malicious_dataset = TrafficImageDataset(config.TEST_MALICIOUS_DIR, config.MALICIOUS_LABEL)
     except Exception as e:
         print(f"Error loading datasets: {e}")
         return
@@ -68,4 +68,4 @@ def test_model():
     true_labels = np.array(true_labels)
 
     # 4. Calculate and Print Results
-    evaluate_model(true_labels, energy_scores, OOD_THRESHOLD)
+    evaluate_model(true_labels, energy_scores, config.OOD_THRESHOLD)

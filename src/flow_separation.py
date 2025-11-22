@@ -1,3 +1,4 @@
+from logging import config
 import pyshark
 from collections import defaultdict
 import numpy as np
@@ -5,16 +6,7 @@ from PIL import Image
 import os
 
 from packet_graph import create_traffic_graph, plot_and_save_graph, graph_to_rgb_image
-from config import (
-    MAX_PACKETS_PER_FLOW, 
-    PCAP_PATH,
-    TRAIN_BENIGN_DIR,
-    TRAIN_OE_DIR,
-    TEST_BENIGN_DIR,
-    TEST_MALICIOUS_DIR,
-    ATTACKER_IP,
-    VICTIM_IP,
-)
+import config
 
 def get_flow_key(pkt):
     try:
@@ -31,20 +23,20 @@ def get_flow_key(pkt):
         return None # skip malformed packets
 
 def get_output_dir(mode, flow_key):
-    malicious_ips = ATTACKER_IP + VICTIM_IP
+    malicious_ips = config.ATTACKER_IP + config.VICTIM_IP
     if mode == 'train':
         label = flow_key[0] in malicious_ips and flow_key[2] in malicious_ips
         if label:
-            return TRAIN_OE_DIR
+            return config.TRAIN_OE_DIR
         else:
-            return TRAIN_BENIGN_DIR
+            return config.TRAIN_BENIGN_DIR
     
     elif mode == 'test':
         label = flow_key[0] in malicious_ips and flow_key[2] in malicious_ips
         if label:
-            return TEST_MALICIOUS_DIR
+            return config.TEST_MALICIOUS_DIR
         else:
-            return TEST_BENIGN_DIR
+            return config.TEST_BENIGN_DIR
         
     else:
         raise ValueError(f"Unknown mode: {mode}")
@@ -80,7 +72,7 @@ def process_flows(mode='train', num_packets=-1):
     flows = defaultdict(list)
     
     # Read PCAP packet-by-packet
-    cap = pyshark.FileCapture(PCAP_PATH)
+    cap = pyshark.FileCapture(config.PCAP_PATH)
 
     for i, packet in enumerate(cap):
         if i == num_packets:
@@ -97,12 +89,12 @@ def process_flows(mode='train', num_packets=-1):
             continue
         
         # If flow is already in memory, append packet
-        if len(flows[flow_key]) < MAX_PACKETS_PER_FLOW:
+        if len(flows[flow_key]) < config.MAX_PACKETS_PER_FLOW:
             packet_info = extract_packet_info(packet, client_ip=flow_key[0], idx_packet=len(flows[flow_key]))
             flows[flow_key].append(packet_info)
 
         # Once flow reaches MAX_PACKETS_PER_FLOW → build graph
-        if len(flows[flow_key]) == MAX_PACKETS_PER_FLOW:
+        if len(flows[flow_key]) == config.MAX_PACKETS_PER_FLOW:
             # print(f"Creating graph for flow: {flow_key}")
             graph = create_traffic_graph(flows[flow_key])
             # plot_and_save_graph(graph, flow_key)
