@@ -4,14 +4,15 @@ import argparse
 from flow_separation import process_flows
 from train import train_model
 from test import test_model
-from config import TENSORS_DIR, TRAIN_DIR, TEST_BENIGN_DIR, TEST_MALICIOUS_DIR   
+from config import TENSORS_DIR, TRAIN_BENIGN_DIR, TRAIN_OE_DIR, TEST_BENIGN_DIR, TEST_MALICIOUS_DIR   
 
 
 def ensure_dirs():
     """Ensure all required directories exist for storing tensors and model outputs."""
     # Create base tensor directory
     os.makedirs(TENSORS_DIR, exist_ok=True)
-    os.makedirs(TRAIN_DIR, exist_ok=True)
+    os.makedirs(TRAIN_BENIGN_DIR, exist_ok=True)
+    os.makedirs(TRAIN_OE_DIR, exist_ok=True)
     # Create test directories
     os.makedirs(TEST_BENIGN_DIR, exist_ok=True)
     os.makedirs(TEST_MALICIOUS_DIR, exist_ok=True)

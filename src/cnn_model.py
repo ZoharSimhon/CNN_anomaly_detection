@@ -8,7 +8,7 @@ class SimpleCNN(nn.Module):
     Simple CNN for flow images.
     Output: logits (no softmax) so that energy-based OOD scoring can be applied.
     """
-    def __init__(self, num_classes=2):
+    def __init__(self, num_classes=1):
         super(SimpleCNN, self).__init__()
         self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
         self.pool1 = nn.MaxPool2d(2)

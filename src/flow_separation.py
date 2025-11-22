@@ -8,7 +8,8 @@ from packet_graph import create_traffic_graph, plot_and_save_graph, graph_to_rgb
 from config import (
     MAX_PACKETS_PER_FLOW, 
     PCAP_PATH,
-    TRAIN_DIR,
+    TRAIN_BENIGN_DIR,
+    TRAIN_OE_DIR,
     TEST_BENIGN_DIR,
     TEST_MALICIOUS_DIR,
     ATTACKER_IP,
@@ -30,11 +31,16 @@ def get_flow_key(pkt):
         return None # skip malformed packets
 
 def get_output_dir(mode, flow_key):
+    malicious_ips = ATTACKER_IP + VICTIM_IP
     if mode == 'train':
-        return TRAIN_DIR
+        label = flow_key[0] in malicious_ips and flow_key[2] in malicious_ips
+        if label:
+            return TRAIN_OE_DIR
+        else:
+            return TRAIN_BENIGN_DIR
     
     elif mode == 'test':
-        label = flow_key[0] in [ATTACKER_IP, VICTIM_IP] and flow_key[2] in [ATTACKER_IP, VICTIM_IP]
+        label = flow_key[0] in malicious_ips and flow_key[2] in malicious_ips
         if label:
             return TEST_MALICIOUS_DIR
         else:
