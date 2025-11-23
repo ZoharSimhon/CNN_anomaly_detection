@@ -23,7 +23,7 @@ def run_single_attack(attack, args):
     Respects args.preprocess and args.test flags.
     """
     attack_name = attack['name']
-    print(f"\n>>> 🔄 Setting up environment for: {attack_name}")
+    print(f"\n>>> Setting up environment for: {attack_name}")
     
     # 1. DYNAMICALLY UPDATE CONFIG
     config.PCAP_PATH = attack['pcap']
@@ -44,7 +44,7 @@ def run_single_attack(attack, args):
         try:
             process_flows(mode='test') 
         except Exception as e:
-            print(f"   ❌ Error in processing: {e}")
+            print(f"Error in processing: {e}")
             return # Stop if preprocessing fails
     else:
         print(f"   [1/2] Skipping Preprocessing (images must already exist)...")
@@ -55,7 +55,7 @@ def run_single_attack(attack, args):
         try:
             test_model()
         except Exception as e:
-            print(f"   ❌ Error in testing: {e}")
+            print(f"Error in testing: {e}")
     else:
         print(f"   [2/2] Skipping Test...")
 
@@ -66,7 +66,7 @@ def get_batch_attacks(dataset_name):
     """
     try:
         if dataset_name == 'cic-ids-2018':
-            from ton_iot_details import ATTACKS
+            from cic_2018_details import ATTACKS
             return ATTACKS
             
         elif dataset_name == 'ton-iot':
@@ -78,11 +78,11 @@ def get_batch_attacks(dataset_name):
             return ATTACKS
             
         else:
-            print(f"❌ Error: Unknown dataset name '{dataset_name}'. Cannot load attack list.")
+            print(f"Error: Unknown dataset name '{dataset_name}'. Cannot load attack list.")
             return []
             
     except ImportError as e:
-        print(f"❌ Error: Could not import attack details for {dataset_name}.")
+        print(f"Error: Could not import attack details for {dataset_name}.")
         print(f"   Make sure the file exists and has an 'ATTACKS' list variable.")
         print(f"   Python Error: {e}")
         return []
@@ -90,16 +90,16 @@ def get_batch_attacks(dataset_name):
 def main(args):
     # --- MODE 1: BATCH BENCHMARK ---
     if args.benchmark:
-        print("🚀 STARTING BATCH BENCHMARK MODE")
+        print("STARTING BATCH BENCHMARK MODE")
         
         # Safety Check
         if args.train:
-            print("❌ ERROR: --benchmark cannot be combined with --train.")
+            print("ERROR: --benchmark cannot be combined with --train.")
             print("   Benchmark is for testing existing models only.")
             return
         
         if not (args.preprocess or args.test):
-            print("⚠️  WARNING: You selected --benchmark but didn't specify --preprocess or --test.")
+            print("WARNING: You selected --benchmark but didn't specify --preprocess or --test.")
             print("   Nothing will happen. Please add flags.")
             return
         
@@ -107,7 +107,7 @@ def main(args):
         batch_attacks = get_batch_attacks(args.dataset)
         
         if not batch_attacks:
-            print("⚠️  No attacks found. Exiting.")
+            print("WARNING: No attacks found. Exiting.")
             return
         
         print("="*40)
@@ -115,7 +115,7 @@ def main(args):
             print(f"Experiment {i+1}/{len(batch_attacks)}")
             run_single_attack(attack, args)
             
-        print("\n✅ Batch Benchmark Completed.")
+        print("\nBatch Benchmark Completed.")
         return
 
     # --- MODE 2: STANDARD SINGLE RUN ---
